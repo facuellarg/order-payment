@@ -32,7 +32,7 @@ func (or *OrderRepositoryMemory) SaveOrder(order entities.Order) (string, error)
 		return "", ErrOrderAlreadyExists
 	}
 	or.orders[order.OrderID] = order
-	or.Write()
+	// or.Write()
 	return order.OrderID, nil
 }
 
@@ -43,7 +43,7 @@ func (or *OrderRepositoryMemory) UpdateStatus(orderID string, newStatus entities
 	}
 	order.Status = newStatus
 	or.orders[orderID] = order
-	or.Write()
+	// or.Write()
 	return nil
 }
 
