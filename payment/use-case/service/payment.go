@@ -32,7 +32,7 @@ func (ps *PaymentService) ProcessPayment(processPaymentRequest entities.ProcessP
 		return err
 	}
 
-	go ps.paymentEventHandler.SendOrderCompleteEvent(payment.OrderID) //TODO: callback if it fails
+	ps.paymentEventHandler.SendOrderCompleteEvent(payment.OrderID) //TODO: callback if it fails
 
 	return nil
 }

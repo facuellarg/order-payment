@@ -18,10 +18,19 @@ terraform {
 
 module "oders-module" {
   source = "./order"
+  depends_on = [
+    aws_sqs_queue.complete_order
+  ]
+  
 }
 
 module "payment-module" {
   source = "./payment"
+  depends_on = [
+    aws_sqs_queue.complete_order
+  ]
+  process_payment_queue_url = aws_sqs_queue.complete_order.url
+  process_payment_queue_arn = aws_sqs_queue.complete_order.arn
 }
 
 provider "aws" {

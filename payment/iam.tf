@@ -47,7 +47,6 @@ resource "aws_iam_role_policy_attachment" "lambda_loggin_policy_attachment" {
 data "aws_iam_policy_document" "allow_dynamodb_table_operations"{
   statement {
     actions = [
-      "dynamodb:GetItem",
       "dynamodb:PutItem",
       "dynamodb:UpdateItem",
       "dynamodb:Scan"
@@ -69,6 +68,34 @@ resource "aws_iam_policy" "dynamodb_payment_policy" {
 resource "aws_iam_role_policy_attachment" "payment_dynamodb_policy_attachment"{
   role = aws_iam_role.process_payment.id
   policy_arn = aws_iam_policy.dynamodb_payment_policy.arn
+  depends_on = [
+    aws_iam_role.process_payment
+  ]
+}
+
+
+
+data "aws_iam_policy_document" "allow_sqs_operation"{
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage"
+    ]
+    resources = [
+      var.process_payment_queue_arn,
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sqs_payment_policy" {
+  name = "PaymentSQSPolicy"
+  description = "Allow payment send message in sqs queue"
+  policy = data.aws_iam_policy_document.allow_sqs_operation.json
+}
+
+resource "aws_iam_role_policy_attachment" "payment_process_payment_policy_attachment"{
+  role = aws_iam_role.process_payment.id
+  policy_arn = aws_iam_policy.sqs_payment_policy.arn
   depends_on = [
     aws_iam_role.process_payment
   ]

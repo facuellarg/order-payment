@@ -25,6 +25,11 @@ resource "aws_lambda_function" "process_payment" {
   filename = local.archive_path
   source_code_hash = data.archive_file.process_payment_archive.output_base64sha256
   runtime = "go1.x"
+  environment {
+    variables = {
+      QUEUE_URL = var.process_payment_queue_url
+    }
+  }
   
 }
 resource "aws_cloudwatch_log_group" "payment_log" {
