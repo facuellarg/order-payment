@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
 func GetRegion() string {
@@ -16,10 +17,17 @@ func GetRegion() string {
 	return region
 }
 
-func Dynamodb() *dynamodb.DynamoDB {
-	return dynamodb.New(session.Must(
+func mySession() *session.Session {
+	return session.Must(
 		session.NewSession(&aws.Config{
 			Region: aws.String(GetRegion()),
 		}),
-	))
+	)
+}
+func Dynamodb() *dynamodb.DynamoDB {
+	return dynamodb.New(mySession())
+}
+
+func SQS() *sqs.SQS {
+	return sqs.New(mySession())
 }

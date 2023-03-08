@@ -20,6 +20,10 @@ module "oders-module" {
   source = "./order"
 }
 
+module "payment-module" {
+  source = "./payment"
+}
+
 provider "aws" {
   region = "us-east-1"
   # profile = "tutorial-terraform-profile"

@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "allow_dynamodb_table_operations" {
     ]
 
     resources = [
-      aws_dynamodb_table.profiles.arn,
+      aws_dynamodb_table.orders.arn,
     ]
   }
 }

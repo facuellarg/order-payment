@@ -1,8 +1,7 @@
 package main
 
 import (
-	"log"
-
+	"github.com/facuellarg/order/interface/aws"
 	"github.com/facuellarg/payment/domain/entities"
 	"github.com/facuellarg/payment/external-service/server"
 	"github.com/facuellarg/payment/interface/controller"
@@ -18,16 +17,12 @@ func main() {
 		sendChannel,
 		listenChan,
 	)
-	paymentRepository := repository.NewPaymentMemoryRepository()
-	paymentService := service.NewPaymentService(&paymentRepository, &paymentEventHandler)
+
+	awsConn := aws.Dynamodb()
+	dynamoRepository := repository.NewPaymentDynamoRepository(awsConn, "payments")
+	// paymentRepository := repository.NewPaymentMemoryRepository()
+	paymentService := service.NewPaymentService(&dynamoRepository, &paymentEventHandler)
 	paymentController := controller.NewPaymentController(&paymentService)
 	s := server.NewPaymentServer(&paymentController, 8080)
-	go func() {
-		listenChan <- entities.CreatedOrderEvent{
-			OrderID:    "order_test",
-			TotalPrice: 40,
-		}
-	}()
-
-	log.Fatal(s.Start())
+	s.ProcessPayment()
 }

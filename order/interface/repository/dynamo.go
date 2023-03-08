@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -27,14 +25,13 @@ func (ord *OrderRepositoryDynamo) SaveOrder(order entities.Order) (string, error
 	if err != nil {
 		return "", err
 	}
-	output, err := ord.awsSession.PutItem(&dynamodb.PutItemInput{
+	_, err = ord.awsSession.PutItem(&dynamodb.PutItemInput{
 		Item:      av,
 		TableName: aws.String("orders"),
 	})
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("output: %v\n", output)
 	return order.OrderID, nil
 }
 
