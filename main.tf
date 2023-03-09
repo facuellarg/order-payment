@@ -21,8 +21,8 @@ module "sqs" {
 }
 
 
-module "oders-module" {
-  source = "./order"
+module "oders_module" {
+  source = "./order/terraform"
   depends_on = [
     module.sqs
   ]
@@ -33,8 +33,8 @@ module "oders-module" {
   
 }
 
-module "payment-module" {
-  source = "./payment"
+module "payment_module" {
+  source = "./payment/terraform"
   depends_on = [
     module.sqs
   ]
