@@ -49,6 +49,7 @@ data "aws_iam_policy_document" "allow_dynamodb_table_operations" {
     effect = "Allow"
     actions = [
       "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
     ]
 
     resources = [

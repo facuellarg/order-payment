@@ -10,12 +10,22 @@ import (
 )
 
 type OrderRepositoryDynamo struct {
-	awsSession dynamodbiface.DynamoDBAPI
+	tableName          string
+	updateExpression   string
+	returnUpdateString string
+	updateReplacement  map[string]*string
+	awsSession         dynamodbiface.DynamoDBAPI
 }
 
 func NewORderRepositoryDynamo(awsSession dynamodbiface.DynamoDBAPI) OrderRepositoryDynamo {
 	return OrderRepositoryDynamo{
-		awsSession,
+		awsSession:         awsSession,
+		tableName:          "orders",
+		updateExpression:   "set #st = :newStatus",
+		returnUpdateString: "NONE",
+		updateReplacement: map[string]*string{
+			"#st": aws.String("status"),
+		},
 	}
 }
 
@@ -36,6 +46,26 @@ func (ord *OrderRepositoryDynamo) SaveOrder(order entities.Order) (string, error
 }
 
 func (ord *OrderRepositoryDynamo) UpdateStatus(orderID string, newStatus entities.OrderStatus) error {
+	key := map[string]*dynamodb.AttributeValue{
+		"order_id": {
+			S: &orderID,
+		},
+	}
+	strStatus := (string)(newStatus)
+	value := map[string]*dynamodb.AttributeValue{
+		":newStatus": {
+			S: &strStatus,
+		},
+	}
 
-	return nil
+	input := dynamodb.UpdateItemInput{
+		TableName:                 &ord.tableName,
+		Key:                       key,
+		UpdateExpression:          &ord.updateExpression,
+		ExpressionAttributeValues: value,
+		ExpressionAttributeNames:  ord.updateReplacement,
+		ReturnValues:              &ord.returnUpdateString,
+	}
+	_, err := ord.awsSession.UpdateItem(&input)
+	return err
 }
