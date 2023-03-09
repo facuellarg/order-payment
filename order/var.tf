@@ -4,7 +4,6 @@ variable "process_payment_queue_arn" {
 variable "process_payment_queue_url" {
   type = string
 }
-
 variable "create_order_queue_url" {
   type = string
 }

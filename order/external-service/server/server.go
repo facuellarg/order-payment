@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
@@ -36,6 +35,12 @@ func (s *Server) ServeOrder() error {
 	lambda.Start(s.createOrder)
 	return nil
 }
+
+func (s *Server) ServeListenOrderComplete() error {
+	lambda.Start(s.listenOrderComplete)
+	return nil
+}
+
 func (s *Server) createOrder(ctx context.Context, event *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 
 	fmt.Println("creating order")
@@ -66,14 +71,11 @@ func (s *Server) createOrder(ctx context.Context, event *events.APIGatewayV2HTTP
 	}, nil
 }
 
-func (s *Server) CompleteOrder() {
-	for {
-		orderID, err := s.orderController.CompleteOrder() //TODO: same logger problem
-		if err != nil {
-			log.Printf("error completing order orderID:%s\n error:%s", orderID, err)
-			continue
+func (s *Server) listenOrderComplete(ctx context.Context, event *events.SQSEvent) error {
+	for _, message := range event.Records {
+		if err := s.orderController.CompleteOrder(message.Body); err != nil {
+			fmt.Println(err)
 		}
-		fmt.Printf("order %s completed\n", orderID)
-
 	}
+	return nil
 }

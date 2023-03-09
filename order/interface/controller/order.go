@@ -20,6 +20,6 @@ func (oc *OrderController) CreateOrderEvent(orderRequest entities.CreateOrderReq
 
 }
 
-func (oc *OrderController) CompleteOrder() (string, error) {
-	return oc.OrderService.UpdateStatusOrder()
+func (oc *OrderController) CompleteOrder(orderID string) error {
+	return oc.OrderService.UpdateStatusOrder(orderID)
 }

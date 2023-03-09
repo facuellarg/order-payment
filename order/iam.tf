@@ -70,3 +70,32 @@ resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attachment" {
     aws_iam_role.lambda
   ]
 }
+
+data "aws_iam_policy_document" "allow_sqs_operation"{
+  statement {
+    effect = "Allow"
+    actions = [
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
+      "sqs:*"
+    ]
+    resources = [
+      var.process_payment_queue_arn,
+      var.create_order_queue_arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sqs_payment_policy" {
+  name = "OrderSQSPolicy"
+  description = "Allow order send message in sqs queue"
+  policy = data.aws_iam_policy_document.allow_sqs_operation.json
+}
+
+resource "aws_iam_role_policy_attachment" "order_queue_policy_attachment"{
+  role = aws_iam_role.lambda.id
+  policy_arn = aws_iam_policy.sqs_payment_policy.arn
+  depends_on = [
+    aws_iam_role.lambda
+  ]
+}

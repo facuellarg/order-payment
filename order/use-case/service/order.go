@@ -31,7 +31,7 @@ func (os *OrderService) SaveOrder(orderRequest entities.CreateOrderRequest) (str
 	if err != nil {
 		return "", err
 	}
-	go os.sendOrderCreatedEvent(entities.CreateOrderEvent{ //TODO: callback if it fails
+	os.sendOrderCreatedEvent(entities.CreateOrderEvent{ //TODO: callback if it fails
 		OrderID:    orderId,
 		TotalPrice: orderRequest.TotalPrice,
 	})
@@ -45,10 +45,6 @@ func (oc *OrderService) sendOrderCreatedEvent(createOrderEvent entities.CreateOr
 
 }
 
-func (os *OrderService) UpdateStatusOrder() (string, error) {
-	orderID, err := os.OrderEventHandler.ListenCompleteOrderEvent()
-	if err != nil {
-		return "", err
-	}
-	return orderID, os.OrderRepository.UpdateStatus(orderID, entities.Shipping)
+func (os *OrderService) UpdateStatusOrder(orderID string) error {
+	return os.OrderRepository.UpdateStatus(orderID, entities.Shipping)
 }

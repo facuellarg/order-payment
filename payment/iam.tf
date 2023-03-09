@@ -79,10 +79,12 @@ data "aws_iam_policy_document" "allow_sqs_operation"{
   statement {
     effect = "Allow"
     actions = [
-      "sqs:SendMessage"
+      "sqs:SendMessage",
+      "sqs:ReceiveMessage",
     ]
     resources = [
       var.process_payment_queue_arn,
+      var.create_order_queue_arn,
     ]
   }
 }

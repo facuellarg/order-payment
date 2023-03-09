@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	// orderRepository := repository.NewOderRepositoryMemory()
 	orderRepository := repository.NewORderRepositoryDynamo(
 		myAws.Dynamodb(),
 	)
@@ -20,6 +21,5 @@ func main() {
 	orderService := service.NewOrderService(&orderRepository, &orderEvent)
 	orderController := controller.NewOrderController(&orderService)
 	s := server.NewServer(&orderController)
-	// orderRepository := repository.NewOderRepositoryMemory()
-	s.ServeOrder()
+	s.ServeListenOrderComplete()
 }

@@ -3,7 +3,7 @@ resource "null_resource" "function_binary" {
   provisioner "local-exec" {
     interpreter = ["PowerShell", "-Command"]
 
-    command = "$env:GOOS=\"linux\" ;$env:GOARCH=\"amd64\"; $env:CGO_ENABLED=0; $env:GOFLAGS=\"-trimpath\"; go build -mod=readonly -ldflags='-s -w' -o ${local.binary_path} ./${local.src_path}"
+    command = "$env:GOOS=\"linux\" ;$env:GOARCH=\"amd64\"; $env:CGO_ENABLED=0; $env:GOFLAGS=\"-trimpath\"; go build -mod=readonly -ldflags='-s -w' -o ${local.binary_path} ./${local.src_path_make_order}"
   }
 }
 
@@ -18,8 +18,8 @@ data "archive_file" "function_archive" {
 
 // create the lambda function from zip file
 resource "aws_lambda_function" "function" {
-  function_name = "hello-world"
-  description   = "My first hello world function"
+  function_name = "create-order"
+  description   = "function that is trigger by api, create an order"
   role          = aws_iam_role.lambda.arn
   handler       = local.binary_name
   memory_size   = 128
@@ -30,6 +30,11 @@ resource "aws_lambda_function" "function" {
   // skip timeout
   runtime = "go1.x"
   // skip tags
+  environment {
+    variables = {
+      QUEUE_URL = var.create_order_queue_url
+    }
+  }
 
   // skip environment variables
 }
