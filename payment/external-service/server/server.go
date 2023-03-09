@@ -32,6 +32,9 @@ func NewPaymentServer(
 func (ps PaymentServer) ProcessPayment() {
 	lambda.Start(ps.processPayment)
 }
+func (ps PaymentServer) CreatePayment() {
+	lambda.Start(ps.createPayment)
+}
 
 func (ps *PaymentServer) processPayment(ctx context.Context, event *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 	var paymentRequest entities.ProcessPaymentRequest
@@ -56,13 +59,20 @@ func (ps *PaymentServer) processPayment(ctx context.Context, event *events.APIGa
 	}, nil
 }
 
-func (ps *PaymentServer) createPayment() {
-	for {
-		paymentID, err := ps.paymentController.CreatePayment()
-		if err != nil {
-			log.Println(err)
+func (ps *PaymentServer) createPayment(ctx context.Context, event *events.SQSEvent) error {
+
+	for _, message := range event.Records {
+		createdOrderEvent := entities.CreatedOrderEvent{}
+		if err := json.NewDecoder(strings.NewReader(message.Body)).Decode(&createdOrderEvent); err != nil {
+			fmt.Println(err)
 			continue
 		}
-		log.Printf("Payment created %s", paymentID)
+		paymentID, err := ps.paymentController.CreatePayment(createdOrderEvent)
+		if err != nil {
+			fmt.Println(err)
+		}
+		log.Println("payment created ", paymentID)
 	}
+	return nil
+
 }

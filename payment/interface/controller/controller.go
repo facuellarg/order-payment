@@ -19,6 +19,6 @@ func (pc *PaymentController) ProcessPaymentRequest(paymentRequest entities.Proce
 	return pc.paymentService.ProcessPayment(paymentRequest)
 }
 
-func (pc *PaymentController) CreatePayment() (string, error) {
-	return pc.paymentService.CreatePayment()
+func (pc *PaymentController) CreatePayment(orderCreatedEvent entities.CreatedOrderEvent) (string, error) {
+	return pc.paymentService.CreatePayment(orderCreatedEvent)
 }

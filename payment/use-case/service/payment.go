@@ -37,11 +37,7 @@ func (ps *PaymentService) ProcessPayment(processPaymentRequest entities.ProcessP
 	return nil
 }
 
-func (ps *PaymentService) CreatePayment() (string, error) {
-	orderCreatedEvent, err := ps.paymentEventHandler.ListenOrderCreatedEvent()
-	if err != nil {
-		return "", err
-	}
+func (ps *PaymentService) CreatePayment(orderCreatedEvent entities.CreatedOrderEvent) (string, error) {
 
 	newPayment := entities.Payment{}
 	newPayment.OrderID = orderCreatedEvent.OrderID

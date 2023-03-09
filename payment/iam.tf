@@ -81,6 +81,7 @@ data "aws_iam_policy_document" "allow_sqs_operation"{
     actions = [
       "sqs:SendMessage",
       "sqs:ReceiveMessage",
+      "sqs:*"
     ]
     resources = [
       var.process_payment_queue_arn,
