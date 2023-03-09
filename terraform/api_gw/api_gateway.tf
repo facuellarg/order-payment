@@ -56,7 +56,8 @@ resource "aws_cloudwatch_log_group" "api_gw" {
 // create lambda function to invoke lambda when specific HTTP request is made via API GW
 resource "aws_apigatewayv2_integration" "create_order_lambda" {
   api_id = aws_apigatewayv2_api.api_gw.id
-  integration_uri  = module.oders_module.api_lambda_function_arn
+  # integration_uri  = module.oders_module.api_lambda_function_arn
+  integration_uri  = var.create_order_lambda_arn 
   integration_type = "AWS_PROXY"
 }
 
@@ -71,8 +72,8 @@ resource "aws_apigatewayv2_route" "create_order_lambda" {
 resource "aws_lambda_permission" "create_order_lambda" {
   statement_id  = "create-order-api-gateway"
   action        = "lambda:InvokeFunction"
-  # function_name = aws_lambda_function.function.function_name
-  function_name = module.oders_module.api_lambda_function_name
+  # function_name = module.oders_module.api_lambda_function_name
+  function_name = var.create_order_lambda_name
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.api_gw.execution_arn}/*/*"
@@ -82,7 +83,8 @@ resource "aws_lambda_permission" "create_order_lambda" {
 
 resource "aws_apigatewayv2_integration" "api_payment" {
     api_id = aws_apigatewayv2_api.api_gw.id
-    integration_uri = module.payment_module.api_lambda_function_arn
+    # integration_uri = module.payment_module.api_lambda_function_arn
+    integration_uri = var.process_payment_lambda_arn
     integration_type = "AWS_PROXY"
 }
 
@@ -96,7 +98,8 @@ resource "aws_apigatewayv2_route" "api_payment" {
 resource "aws_lambda_permission" "payment_agw" {
     statement_id = "process-payment-api-gateway"
     action = "lambda:InvokeFunction"
-    function_name = module.payment_module.api_lambda_function_name
+    # function_name = module.payment_module.api_lambda_function_name
+    function_name = var.process_payment_lambda_name
     principal = "apigateway.amazonaws.com"
     source_arn = "${aws_apigatewayv2_api.api_gw.execution_arn}/*/*"
 }
