@@ -39,7 +39,3 @@ func (psh *OrderSQSHandler) SendOrderCreatedEvent(event entities.CreateOrderEven
 	}
 	return nil
 }
-
-func (psh *OrderSQSHandler) ListenCompleteOrderEvent() (string, error) {
-	panic("not implemented") // TODO: Implement
-}

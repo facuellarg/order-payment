@@ -5,7 +5,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
-	"github.com/facuellarg/payment/domain/entities"
 )
 
 type PaymentSQSHandler struct {
@@ -31,8 +30,4 @@ func (psh *PaymentSQSHandler) SendOrderCompleteEvent(orderID string) error {
 	}
 	return err
 	// panic("not implemented") // TODO: Implement
-}
-
-func (psh *PaymentSQSHandler) ListenOrderCreatedEvent() (entities.CreatedOrderEvent, error) {
-	panic("not implemented") // TODO: Implement
 }
