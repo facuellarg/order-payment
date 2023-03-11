@@ -4,10 +4,12 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/facuellarg/payment/domain/entities"
+	"github.com/facuellarg/payment/use-case/service"
 	"github.com/google/uuid"
 )
 
@@ -71,12 +73,14 @@ func (pdr *PaymentDynamoRepository) UpdatePaymentStatus(paymentID string, newSta
 	}
 
 	_, err := pdr.awsSession.UpdateItem(&input)
+	if aerr, ok := err.(awserr.Error); ok && aerr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
+		return nil
+	}
 
 	return err
 }
 
 func (pdr *PaymentDynamoRepository) GetPaymentByOrderID(orderID string) (entities.Payment, error) {
-	fmt.Printf("orderID: %v\n", orderID)
 	input := &dynamodb.ScanInput{
 		TableName:        &pdr.tableName,
 		FilterExpression: &pdr.queryExpression,
@@ -93,6 +97,13 @@ func (pdr *PaymentDynamoRepository) GetPaymentByOrderID(orderID string) (entitie
 	payment := entities.Payment{}
 	if err != nil {
 		return payment, err
+	}
+
+	if len(result.Items) == 0 {
+		return payment, &entities.Error{
+			Code:    service.ErrPaymentNotFound,
+			Message: fmt.Sprintf("payment not found with the order id %s \n", orderID),
+		}
 	}
 
 	err = dynamodbattribute.UnmarshalMap(result.Items[0], &payment)

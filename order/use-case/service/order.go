@@ -37,7 +37,7 @@ func (os *OrderService) SaveOrder(orderRequest entities.CreateOrderRequest) (str
 		return "", err
 	}
 
-	createEvent := entities.CreateOrderEvent{ //TODO: callback if it fails
+	createEvent := entities.CreateOrderEvent{
 		OrderID:    orderId,
 		TotalPrice: orderRequest.TotalPrice,
 	}

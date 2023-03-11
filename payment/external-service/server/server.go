@@ -46,7 +46,6 @@ func (ps *PaymentServer) processPayment(ctx context.Context, event *events.APIGa
 			Body:       err.Error(),
 		}, err
 	}
-	fmt.Printf("paymentRequest: %v\n", paymentRequest)
 	if err := ps.paymentController.ProcessPaymentRequest(paymentRequest); err != nil {
 		fmt.Println(err)
 		return &events.APIGatewayV2HTTPResponse{

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
@@ -72,5 +73,8 @@ func (ord *OrderRepositoryDynamo) UpdateStatus(orderID string, newStatus entitie
 
 	input := buildInput(orderID, newStatus)
 	_, err := ord.awsSession.UpdateItem(&input)
+	if aerr, ok := err.(awserr.Error); ok && aerr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
+		return nil
+	}
 	return err
 }

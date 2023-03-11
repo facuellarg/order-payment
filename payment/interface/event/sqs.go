@@ -20,7 +20,6 @@ func NewPaymentSQSHandler(sqsService sqsiface.SQSAPI, queueUrl string) PaymentSQ
 }
 
 func (psh *PaymentSQSHandler) SendOrderCompleteEvent(orderID string) error {
-	fmt.Println("psh handler ", orderID)
 	_, err := psh.sqsService.SendMessage(&sqs.SendMessageInput{
 		QueueUrl:    &psh.queueUrl,
 		MessageBody: &orderID,
@@ -29,5 +28,4 @@ func (psh *PaymentSQSHandler) SendOrderCompleteEvent(orderID string) error {
 		fmt.Println(err)
 	}
 	return err
-	// panic("not implemented") // TODO: Implement
 }

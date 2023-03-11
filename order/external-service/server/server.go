@@ -13,15 +13,8 @@ import (
 	"github.com/facuellarg/order/external-service/controller"
 )
 
-type HTTPError struct {
-	Code     int         `json:"-"`
-	Message  interface{} `json:"message"`
-	Internal error       `json:"-"` // Stores the error returned by an external dependency
-}
-
 type Server struct {
 	orderController controller.ControllerOrderI
-	// logger	log.Logger
 }
 
 func NewServer(orderController controller.ControllerOrderI) Server {
@@ -43,11 +36,10 @@ func (s *Server) ServeListenOrderComplete() error {
 
 func (s *Server) createOrder(ctx context.Context, event *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
 
-	fmt.Println("creating order")
 	var order entities.CreateOrderRequest
 	err := json.NewDecoder(strings.NewReader(event.Body)).Decode(&order)
 	if err != nil {
-
+		fmt.Println(err)
 		return &events.APIGatewayV2HTTPResponse{
 			StatusCode: http.StatusInternalServerError,
 			Body:       err.Error(),
@@ -73,8 +65,11 @@ func (s *Server) createOrder(ctx context.Context, event *events.APIGatewayV2HTTP
 
 func (s *Server) listenOrderComplete(ctx context.Context, event *events.SQSEvent) error {
 	for _, message := range event.Records {
+		if message.Body == "" {
+			continue
+		}
 		if err := s.orderController.CompleteOrder(message.Body); err != nil {
-			fmt.Println(err)
+			fmt.Printf("error completing order id: %s\nerr: %s\n", message.Body, err)
 		}
 	}
 	return nil

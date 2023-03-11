@@ -94,4 +94,4 @@ this request will change the status in the `payments` table and will send and ev
 
 ## Missing
 
- Develop the test for the whole application. The test made were just for illustrative examples of how we can test our functions that has dependencies, and how mock them. 
+ Develop the test for the whole application. The test made were just for illustrative examples of how we can test our functions that has dependencies, and how mock them.
