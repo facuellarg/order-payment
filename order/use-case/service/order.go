@@ -9,8 +9,8 @@ import (
 )
 
 type OrderService struct {
-	OrderRepository   repository.OrderRepositoryI
-	OrderEventHandler event.OrderEventHandlerI
+	orderRepository   repository.OrderRepositoryI
+	orderEventHandler event.OrderEventHandlerI
 }
 
 func NewOrderService(
@@ -23,22 +23,30 @@ func NewOrderService(
 	}
 }
 
+func CreateOrderByOrderRequest(orderRequest entities.CreateOrderRequest) entities.Order {
+	return entities.Order{
+		CreateOrderRequest: orderRequest,
+		Status:             entities.Incomplete,
+	}
+
+}
 func (os *OrderService) SaveOrder(orderRequest entities.CreateOrderRequest) (string, error) {
-	newOrder := entities.Order{}
-	newOrder.CreateOrderRequest = orderRequest
-	newOrder.Status = entities.Incomplete
-	orderId, err := os.OrderRepository.SaveOrder(newOrder)
+	newOrder := CreateOrderByOrderRequest(orderRequest)
+	orderId, err := os.orderRepository.SaveOrder(newOrder)
 	if err != nil {
 		return "", err
 	}
-	os.sendOrderCreatedEvent(entities.CreateOrderEvent{ //TODO: callback if it fails
+
+	createEvent := entities.CreateOrderEvent{ //TODO: callback if it fails
 		OrderID:    orderId,
 		TotalPrice: orderRequest.TotalPrice,
-	})
+	}
+
+	os.sendOrderCreatedEvent(createEvent)
 	return orderId, nil
 }
 func (oc *OrderService) sendOrderCreatedEvent(createOrderEvent entities.CreateOrderEvent) {
-	err := oc.OrderEventHandler.SendOrderCreatedEvent(createOrderEvent)
+	err := oc.orderEventHandler.SendOrderCreatedEvent(createOrderEvent)
 	if err != nil {
 		log.Println(err)
 	}
@@ -46,5 +54,5 @@ func (oc *OrderService) sendOrderCreatedEvent(createOrderEvent entities.CreateOr
 }
 
 func (os *OrderService) UpdateStatusOrder(orderID string) error {
-	return os.OrderRepository.UpdateStatus(orderID, entities.Shipping)
+	return os.orderRepository.UpdateStatus(orderID, entities.Shipping)
 }

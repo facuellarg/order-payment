@@ -1,3 +1,4 @@
 .terraform*
 tf_*
 terraform.tf*
+*mockery.yaml

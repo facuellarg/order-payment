@@ -9,23 +9,22 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	tableName          = "orders"
+	updateExpression   = "set #st = :newStatus"
+	returnUpdateString = "NONE"
+	updateReplacement  = map[string]*string{
+		"#st": aws.String("status"),
+	}
+)
+
 type OrderRepositoryDynamo struct {
-	tableName          string
-	updateExpression   string
-	returnUpdateString string
-	updateReplacement  map[string]*string
-	awsSession         dynamodbiface.DynamoDBAPI
+	awsSession dynamodbiface.DynamoDBAPI
 }
 
 func NewORderRepositoryDynamo(awsSession dynamodbiface.DynamoDBAPI) OrderRepositoryDynamo {
 	return OrderRepositoryDynamo{
-		awsSession:         awsSession,
-		tableName:          "orders",
-		updateExpression:   "set #st = :newStatus",
-		returnUpdateString: "NONE",
-		updateReplacement: map[string]*string{
-			"#st": aws.String("status"),
-		},
+		awsSession: awsSession,
 	}
 }
 
@@ -45,27 +44,33 @@ func (ord *OrderRepositoryDynamo) SaveOrder(order entities.Order) (string, error
 	return order.OrderID, nil
 }
 
-func (ord *OrderRepositoryDynamo) UpdateStatus(orderID string, newStatus entities.OrderStatus) error {
+func buildInput(orderID string, status entities.OrderStatus) dynamodb.UpdateItemInput {
+
 	key := map[string]*dynamodb.AttributeValue{
 		"order_id": {
 			S: &orderID,
 		},
 	}
-	strStatus := (string)(newStatus)
+	strStatus := (string)(status)
 	value := map[string]*dynamodb.AttributeValue{
 		":newStatus": {
 			S: &strStatus,
 		},
 	}
 
-	input := dynamodb.UpdateItemInput{
-		TableName:                 &ord.tableName,
+	return dynamodb.UpdateItemInput{
+		TableName:                 &tableName,
 		Key:                       key,
-		UpdateExpression:          &ord.updateExpression,
+		UpdateExpression:          &updateExpression,
 		ExpressionAttributeValues: value,
-		ExpressionAttributeNames:  ord.updateReplacement,
-		ReturnValues:              &ord.returnUpdateString,
+		ExpressionAttributeNames:  updateReplacement,
+		ReturnValues:              &returnUpdateString,
 	}
+}
+
+func (ord *OrderRepositoryDynamo) UpdateStatus(orderID string, newStatus entities.OrderStatus) error {
+
+	input := buildInput(orderID, newStatus)
 	_, err := ord.awsSession.UpdateItem(&input)
 	return err
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
@@ -30,4 +31,8 @@ func Dynamodb() *dynamodb.DynamoDB {
 
 func SQS() *sqs.SQS {
 	return sqs.New(mySession())
+}
+
+type DynamoDBI interface {
+	dynamodbiface.DynamoDBAPI
 }

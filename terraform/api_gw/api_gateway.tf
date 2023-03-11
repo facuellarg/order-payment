@@ -104,5 +104,5 @@ resource "aws_lambda_permission" "payment_agw" {
     source_arn = "${aws_apigatewayv2_api.api_gw.execution_arn}/*/*"
 }
 output "api_url" {
-  value = aws_apigatewayv2_api.api_gw.api_endpoint
+  value = aws_apigatewayv2_stage.api_gw.invoke_url
 }
