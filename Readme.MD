@@ -1,6 +1,7 @@
 # ORDER + PAYMENT
 
 <!-- markdownlint-disable MD033-->
+<center>
 <div>
 <img src="readme/assets/aws.png" width = "150px"/>
 <img src="readme/assets/plus.png" width = "50px"/>
@@ -10,4 +11,4 @@
 <img src="readme/assets/lambda.png" width = "100px"/>
 <img src="readme/assets/plus.png" width = "100px"/>
 <img src="readme/assets/sqs.png" width = "100px"/>
-
+<center/>
